@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Roleta dos Transportes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <h1>Roleta dos Transportes</h1>
+      <p class="sub">Toque na roleta e descubra como você vai viajar hoje ✨</p>
+    </header>
+
+    <section class="wheel-area">
+      <div class="pointer" id="pointer" aria-hidden="true"></div>
+      <div class="wheel-wrap" id="wheelWrap">
+        <canvas id="wheel" width="1280" height="1280" aria-label="Roleta de sorteio"></canvas>
+        <button class="hub" id="spinBtn" aria-label="Girar a roleta">GIRAR</button>
+      </div>
+    </section>
+
+    <p class="hint" id="hint">12 transportes esperando a sorte</p>
+  </main>
+
+  <div class="overlay" id="overlay" hidden>
+    <div class="card" id="resultCard" role="dialog" aria-modal="true" aria-labelledby="resultName">
+      <button class="close" id="closeBtn" aria-label="Fechar">&times;</button>
+      <span class="card-kicker">Deu sorte! Você vai de…</span>
+      <div class="card-photo"><img id="resultImg" src="" alt="" /></div>
+      <h2 id="resultName"></h2>
+      <button class="again" id="againBtn">Girar de novo 🎡</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
