@@ -17,10 +17,8 @@ const WHEEL = {
   photoAlpha: 0.92,
   /** tamanho da fonte do rótulo */
   labelFont: 0.068,
-  /** rótulo termina aqui (lado direito da roleta) */
+  /** rótulo ancorado na borda externa, dos dois lados da roleta */
   labelOuter: 0.96,
-  /** rótulo começa aqui quando invertido (lado esquerdo) */
-  labelInner: 0.34,
   /** largura da linha entre fatias, em px do canvas */
   separatorPx: 3,
   /** largura do aro externo, em px do canvas */
@@ -110,7 +108,7 @@ function paintLabel(ctx: Ctx, item: TransportItem, i: number, radius: number): v
   if (upsideDown) {
     ctx.rotate(Math.PI);
     ctx.textAlign = "left";
-    ctx.fillText(item.name, -radius * WHEEL.labelInner, 0);
+    ctx.fillText(item.name, -radius * WHEEL.labelOuter, 0);
   } else {
     ctx.textAlign = "right";
     ctx.fillText(item.name, radius * WHEEL.labelOuter, 0);
