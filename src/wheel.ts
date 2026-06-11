@@ -1,10 +1,12 @@
-import { ITEMS, SLICE, COLORS } from "./items.js";
+import { ITEMS, SLICE, COLORS } from "./items";
 
-export function loadImages() {
+export type WheelImage = HTMLImageElement | null;
+
+export function loadImages(): Promise<WheelImage[]> {
   return Promise.all(
     ITEMS.map(
       (item) =>
-        new Promise((resolve) => {
+        new Promise<WheelImage>((resolve) => {
           const im = new Image();
           im.onload = () => resolve(im);
           im.onerror = () => resolve(null);
@@ -14,7 +16,11 @@ export function loadImages() {
   );
 }
 
-export function drawWheel(ctx, images, rotation) {
+export function drawWheel(
+  ctx: CanvasRenderingContext2D,
+  images: readonly WheelImage[],
+  rotation: number
+): void {
   const size = ctx.canvas.width;
   const c = size / 2;
   const radius = c - 8;

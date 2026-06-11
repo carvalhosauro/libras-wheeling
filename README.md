@@ -26,34 +26,35 @@ Libras é a segunda língua oficial do Brasil e a primeira língua de grande par
 
 ## Rodando localmente
 
-Não precisa instalar nada. É HTML, CSS e JavaScript puros:
-
 ```bash
 git clone https://github.com/carvalhosauro/libras-wheeling.git
 cd libras-wheeling
-python3 -m http.server 8000
-# abra http://localhost:8000
+npm install
+npm run dev      # dev server com hot reload
+npm run build    # type-check + build de produção em dist/
 ```
 
 ## Tecnologias
 
-- **HTML + CSS + JavaScript** puros (sem build, sem dependências instaladas)
+- **TypeScript** estrito, sem framework — bundle final de ~16KB (6KB gzip)
+- **Vite** para dev server e build
 - Roleta desenhada em **Canvas 2D**
-- Confetes via [canvas-confetti](https://github.com/catdad/canvas-confetti) (CDN)
+- Confetes via [canvas-confetti](https://github.com/catdad/canvas-confetti)
 - Sons de tique e vitória gerados com **Web Audio API** (zero arquivos de áudio)
-- Hospedado no **GitHub Pages**
+- Hospedado no **GitHub Pages**, deploy automático via **GitHub Actions** a cada push na `main`
 
 ## Estrutura
 
 ```
-├── index.html      # página única
-├── style.css       # estilos
-├── js/
-│   ├── main.js     # estado, giro, sorteio e ligação com a página
-│   ├── wheel.js    # desenho da roleta no canvas
-│   ├── items.js    # lista de transportes, fatias e cores
-│   └── sounds.js   # tique e som de vitória (Web Audio)
-└── assets/img/     # fotos reais dos transportes
+├── index.html             # página única (entry do Vite)
+├── src/
+│   ├── main.ts            # estado, giro, sorteio e ligação com a página
+│   ├── wheel.ts           # desenho da roleta no canvas
+│   ├── items.ts           # lista de transportes, fatias e cores
+│   ├── sounds.ts          # tique e som de vitória (Web Audio)
+│   └── style.css          # estilos
+├── public/assets/img/     # fotos reais dos transportes
+└── .github/workflows/     # deploy automático no Pages
 ```
 
 ## Créditos das fotos

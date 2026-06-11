@@ -1,4 +1,11 @@
-export const ITEMS = [
+export interface TransportItem {
+  /** Nome exibido no rótulo da fatia e no card de resultado */
+  name: string;
+  /** Caminho da foto, relativo à raiz do site (servido de public/) */
+  img: string;
+}
+
+export const ITEMS: readonly TransportItem[] = [
   { name: "Caminhão", img: "assets/img/caminhao.jpg" },
   { name: "Bicicleta", img: "assets/img/bicicleta.jpg" },
   { name: "Carro particular", img: "assets/img/carro.jpg" },
@@ -13,6 +20,13 @@ export const ITEMS = [
   { name: "Bicicleta elétrica", img: "assets/img/bike-eletrica.jpg" },
 ];
 
-export const SLICE = (Math.PI * 2) / ITEMS.length;
+export const SLICE: number = (Math.PI * 2) / ITEMS.length;
 
-export const COLORS = ["#ff5d73", "#ffc145", "#5b8cff", "#43c59e", "#b388ff", "#ff8e3c"];
+export const COLORS: readonly string[] = [
+  "#ff5d73",
+  "#ffc145",
+  "#5b8cff",
+  "#43c59e",
+  "#b388ff",
+  "#ff8e3c",
+];

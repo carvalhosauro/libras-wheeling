@@ -1,0 +1,33 @@
+{
+  "name": "roleta-libras",
+  "version": "1.0.0",
+  "description": "**Uma iniciativa para ensinar sinais de Libras (Língua Brasileira de Sinais) de um jeito divertido.**",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carvalhosauro/libras-wheeling.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/carvalhosauro/libras-wheeling/issues"
+  },
+  "homepage": "https://github.com/carvalhosauro/libras-wheeling#readme",
+  "private": "true",
+  "devDependencies": {
+    "@types/canvas-confetti": "^1.9.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16"
+  },
+  "dependencies": {
+    "canvas-confetti": "^1.9.4"
+  }
+}
