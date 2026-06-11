@@ -30,7 +30,21 @@ const SPIN = {
   resultDelayMs: 350,
 } as const;
 
+type Theme = "light" | "dark";
+
 export default function App() {
+  // tema inicial já foi aplicado ao <html> pelo script inline do index.html
+  const [theme, setTheme] = createSignal<Theme>(
+    document.documentElement.dataset.theme === "dark" ? "dark" : "light"
+  );
+
+  function toggleTheme(): void {
+    const next: Theme = theme() === "dark" ? "light" : "dark";
+    setTheme(next);
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem("theme", next);
+  }
+
   const [ready, setReady] = createSignal(false);
   const [spinning, setSpinning] = createSignal(false);
   const [result, setResult] = createSignal<TransportItem | null>(null);
@@ -132,6 +146,13 @@ export default function App() {
 
   return (
     <>
+      <button
+        class="theme-toggle"
+        onClick={toggleTheme}
+        aria-label={theme() === "dark" ? "Mudar para tema claro" : "Mudar para tema escuro"}
+      >
+        {theme() === "dark" ? "☀️" : "🌙"}
+      </button>
       <main class="page">
         <header class="hero">
           <h1>Roleta dos Transportes</h1>

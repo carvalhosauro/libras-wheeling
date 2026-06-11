@@ -3,9 +3,22 @@
   --ink: #2b2440;
   --muted: #8b8499;
   --accent: #ff5d73;
-  --accent-2: #ffc145;
   --card: #ffffff;
-  --ring: #2b2440;
+  --chip: #f1eef7;
+  --glow: #fff1e0;
+  --again-hover: #3a3158;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #17131f;
+  --ink: #f2eefa;
+  --muted: #9a92ab;
+  --card: #241e33;
+  --chip: #352c4a;
+  --glow: #2a2140;
+  --again-hover: #ffffff;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -15,7 +28,7 @@ html, body { height: 100%; }
 body {
   font-family: "Nunito", system-ui, sans-serif;
   background:
-    radial-gradient(1200px 600px at 50% -200px, #fff1e0 0%, transparent 60%),
+    radial-gradient(1200px 600px at 50% -200px, var(--glow) 0%, transparent 60%),
     var(--bg);
   color: var(--ink);
   display: grid;
@@ -33,6 +46,28 @@ body {
 }
 
 .hero { text-align: center; }
+
+/* ---------- theme toggle ---------- */
+
+.theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--card);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease;
+}
+
+.theme-toggle:hover { transform: rotate(20deg) scale(1.1); }
+.theme-toggle:active { transform: scale(0.92); }
 
 .hero h1 {
   font-weight: 900;
@@ -164,7 +199,7 @@ body {
   height: 34px;
   border: none;
   border-radius: 50%;
-  background: #f1eef7;
+  background: var(--chip);
   color: var(--muted);
   font-size: 1.3rem;
   line-height: 1;
@@ -190,7 +225,7 @@ body {
   aspect-ratio: 4 / 3;
   border-radius: 16px;
   overflow: hidden;
-  background: #eee;
+  background: var(--chip);
 }
 
 .card-photo img {
@@ -211,7 +246,7 @@ body {
   font-family: inherit;
   font-weight: 800;
   font-size: 1rem;
-  color: #fff;
+  color: var(--card);
   background: var(--ink);
   border: none;
   border-radius: 999px;
@@ -220,7 +255,7 @@ body {
   transition: transform 0.15s ease, background 0.15s ease;
 }
 
-.again:hover { transform: translateY(-2px); background: #3a3158; }
+.again:hover { transform: translateY(-2px); background: var(--again-hover); }
 .again:active { transform: translateY(0) scale(0.97); }
 
 @media (prefers-reduced-motion: reduce) {
