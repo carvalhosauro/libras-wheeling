@@ -1,6 +1,9 @@
-import { ITEMS, SLICE, COLORS } from "./items";
+import { ITEMS, SLICE, COLORS, type TransportItem } from "./items";
+import { sliceStart, sliceMiddle, TWO_PI } from "./geometry";
 
 export type WheelImage = HTMLImageElement | null;
+
+type Ctx = CanvasRenderingContext2D;
 
 export function loadImages(): Promise<WheelImage[]> {
   return Promise.all(
@@ -16,94 +19,114 @@ export function loadImages(): Promise<WheelImage[]> {
   );
 }
 
-export function drawWheel(
-  ctx: CanvasRenderingContext2D,
-  images: readonly WheelImage[],
-  rotation: number
-): void {
-  const size = ctx.canvas.width;
-  const c = size / 2;
-  const radius = c - 8;
-
-  ctx.clearRect(0, 0, size, size);
+/** Executa `draw` entre save() e restore(), garantindo que o estado do canvas não vaze */
+function withCtx(ctx: Ctx, draw: () => void): void {
   ctx.save();
-  ctx.translate(c, c);
-  ctx.rotate(rotation);
+  draw();
+  ctx.restore();
+}
 
-  ITEMS.forEach((item, i) => {
-    const start = i * SLICE - Math.PI / 2 - SLICE / 2;
-    const end = start + SLICE;
-    const mid = start + SLICE / 2;
-
-    // slice background
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.arc(0, 0, radius, start, end);
-    ctx.closePath();
-    ctx.fillStyle = COLORS[i % COLORS.length];
-    ctx.fill();
-    ctx.clip();
-
-    // photo, cover-cropped to a square centered on the slice
-    const im = images[i];
-    if (im) {
-      const s = radius * 0.78;
-      const px = Math.cos(mid) * radius * 0.62;
-      const py = Math.sin(mid) * radius * 0.62;
-      const srcSide = Math.min(im.naturalWidth, im.naturalHeight);
-      const sx = (im.naturalWidth - srcSide) / 2;
-      const sy = (im.naturalHeight - srcSide) / 2;
-      ctx.globalAlpha = 0.92;
-      ctx.drawImage(im, sx, sy, srcSide, srcSide, px - s / 2, py - s / 2, s, s);
-      ctx.globalAlpha = 1;
-
-      // darken toward center so labels stay readable
-      const grad = ctx.createRadialGradient(0, 0, radius * 0.2, 0, 0, radius);
-      grad.addColorStop(0, "rgba(43,36,64,0.55)");
-      grad.addColorStop(0.55, "rgba(43,36,64,0.05)");
-      grad.addColorStop(1, "rgba(43,36,64,0.25)");
-      ctx.fillStyle = grad;
-      ctx.fill();
-    }
-    ctx.restore();
-
-    // separator
-    ctx.save();
-    ctx.rotate(start);
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(radius, 0);
-    ctx.strokeStyle = "rgba(255,255,255,0.9)";
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.restore();
-
-    // label along the slice
-    ctx.save();
-    ctx.rotate(mid);
-    ctx.textAlign = "right";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#fff";
-    ctx.font = `800 ${radius * 0.068}px Nunito, sans-serif`;
-    ctx.shadowColor = "rgba(0,0,0,0.7)";
-    ctx.shadowBlur = 6;
-    if (mid > Math.PI / 2 || mid < -Math.PI / 2) {
-      ctx.rotate(Math.PI);
-      ctx.textAlign = "left";
-      ctx.fillText(item.name, -radius * 0.34, 0);
-    } else {
-      ctx.fillText(item.name, radius * 0.96, 0);
-    }
-    ctx.restore();
-  });
-
-  // outer ring
+function clipSlice(ctx: Ctx, i: number, radius: number): void {
   ctx.beginPath();
-  ctx.arc(0, 0, radius, 0, Math.PI * 2);
+  ctx.moveTo(0, 0);
+  ctx.arc(0, 0, radius, sliceStart(i, SLICE), sliceStart(i + 1, SLICE));
+  ctx.closePath();
+  ctx.clip();
+}
+
+function paintSliceBackground(ctx: Ctx, i: number): void {
+  ctx.fillStyle = COLORS[i % COLORS.length];
+  ctx.fill();
+}
+
+/** Foto recortada em quadrado (cover) e centrada no meio da fatia */
+function paintSlicePhoto(ctx: Ctx, image: HTMLImageElement, i: number, radius: number): void {
+  const size = radius * 0.78;
+  const centerX = Math.cos(sliceMiddle(i, SLICE)) * radius * 0.62;
+  const centerY = Math.sin(sliceMiddle(i, SLICE)) * radius * 0.62;
+  const cropSide = Math.min(image.naturalWidth, image.naturalHeight);
+  const cropX = (image.naturalWidth - cropSide) / 2;
+  const cropY = (image.naturalHeight - cropSide) / 2;
+
+  ctx.globalAlpha = 0.92;
+  ctx.drawImage(image, cropX, cropY, cropSide, cropSide, centerX - size / 2, centerY - size / 2, size, size);
+  ctx.globalAlpha = 1;
+}
+
+/** Escurece centro e borda da fatia para o rótulo branco continuar legível */
+function paintReadabilityShade(ctx: Ctx, radius: number): void {
+  const shade = ctx.createRadialGradient(0, 0, radius * 0.2, 0, 0, radius);
+  shade.addColorStop(0, "rgba(43,36,64,0.55)");
+  shade.addColorStop(0.55, "rgba(43,36,64,0.05)");
+  shade.addColorStop(1, "rgba(43,36,64,0.25)");
+  ctx.fillStyle = shade;
+  ctx.fill();
+}
+
+function paintSeparator(ctx: Ctx, i: number, radius: number): void {
+  ctx.rotate(sliceStart(i, SLICE));
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(radius, 0);
+  ctx.strokeStyle = "rgba(255,255,255,0.9)";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+/** Rótulo ao longo do raio; nas fatias do lado esquerdo, vira 180° para não ficar de cabeça para baixo */
+function paintLabel(ctx: Ctx, item: TransportItem, i: number, radius: number): void {
+  const middle = sliceMiddle(i, SLICE);
+  const upsideDown = middle > Math.PI / 2 || middle < -Math.PI / 2;
+
+  ctx.rotate(middle);
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#fff";
+  ctx.font = `800 ${radius * 0.068}px Nunito, sans-serif`;
+  ctx.shadowColor = "rgba(0,0,0,0.7)";
+  ctx.shadowBlur = 6;
+
+  if (upsideDown) {
+    ctx.rotate(Math.PI);
+    ctx.textAlign = "left";
+    ctx.fillText(item.name, -radius * 0.34, 0);
+  } else {
+    ctx.textAlign = "right";
+    ctx.fillText(item.name, radius * 0.96, 0);
+  }
+}
+
+function paintOuterRing(ctx: Ctx, radius: number): void {
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, TWO_PI);
   ctx.lineWidth = 10;
   ctx.strokeStyle = "#fff";
   ctx.stroke();
+}
 
-  ctx.restore();
+export function drawWheel(ctx: Ctx, images: readonly WheelImage[], rotation: number): void {
+  const center = ctx.canvas.width / 2;
+  const radius = center - 8;
+
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+  withCtx(ctx, () => {
+    ctx.translate(center, center);
+    ctx.rotate(rotation);
+
+    ITEMS.forEach((item, i) => {
+      withCtx(ctx, () => {
+        clipSlice(ctx, i, radius);
+        paintSliceBackground(ctx, i);
+        const image = images[i];
+        if (image) {
+          paintSlicePhoto(ctx, image, i, radius);
+          paintReadabilityShade(ctx, radius);
+        }
+      });
+      withCtx(ctx, () => paintSeparator(ctx, i, radius));
+      withCtx(ctx, () => paintLabel(ctx, item, i, radius));
+    });
+
+    paintOuterRing(ctx, radius);
+  });
 }

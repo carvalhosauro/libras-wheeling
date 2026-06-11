@@ -2,6 +2,8 @@ import confetti from "canvas-confetti";
 import { ITEMS, SLICE } from "./items";
 import { loadImages, drawWheel, type WheelImage } from "./wheel";
 import { ensureAudio, playTick, playWin } from "./sounds";
+import { indexAtPointer, spinDelta, easeOutQuart } from "./geometry";
+import { randomIndex, randomInt, randomBetween } from "./random";
 import "./style.css";
 
 function el<T extends HTMLElement>(id: string): T {
@@ -25,19 +27,19 @@ const againBtn = el<HTMLButtonElement>("againBtn");
 const closeBtn = el<HTMLButtonElement>("closeBtn");
 const hint = el<HTMLParagraphElement>("hint");
 
-let rotation = 0; // current wheel rotation in radians
+let rotation = 0; // ângulo atual da roleta, em radianos
 let spinning = false;
 let images: readonly WheelImage[] = [];
 
-const TWO_PI = Math.PI * 2;
+/** Fatia atualmente sob o ponteiro */
+const currentIndex = (): number => indexAtPointer(rotation, SLICE, ITEMS.length);
 
-function currentIndex(): number {
-  // pointer sits at the top; slice 0 is centered there when rotation = 0
-  const turns = ((-rotation % TWO_PI) + TWO_PI) % TWO_PI;
-  return Math.round(turns / SLICE) % ITEMS.length;
+function animatePointerTick(): void {
+  playTick();
+  pointer.classList.remove("tick");
+  void pointer.offsetWidth; // força reflow para reiniciar a animação CSS
+  pointer.classList.add("tick");
 }
-
-const easeOutQuart = (t: number): number => 1 - Math.pow(1 - t, 4);
 
 function spin(): void {
   if (spinning) return;
@@ -47,33 +49,28 @@ function spin(): void {
   wheelWrap.classList.remove("idle");
   hint.textContent = "Girando…";
 
-  const winner = Math.floor(Math.random() * ITEMS.length);
-  const fullTurns = 5 + Math.floor(Math.random() * 3); // 5–7 turns
-  const jitter = (Math.random() - 0.5) * SLICE * 0.7; // land off-center, never on a line
-  const targetTurns = winner * SLICE + jitter;
-  const current = ((-rotation % TWO_PI) + TWO_PI) % TWO_PI;
-  const delta = fullTurns * TWO_PI + ((targetTurns - current + TWO_PI) % TWO_PI);
+  const winner = randomIndex(ITEMS.length);
+  const fullTurns = randomInt(5, 7);
+  // até ±35% da fatia: para fora do centro, mas nunca em cima da linha
+  const jitter = randomBetween(-0.35, 0.35) * SLICE;
+  const delta = spinDelta(rotation, winner, SLICE, fullTurns, jitter);
+  const duration = randomBetween(4200, 5000);
 
   const startRotation = rotation;
-  const duration = 4200 + Math.random() * 800;
   const startTime = performance.now();
-  let lastIdx = currentIndex();
+  let lastIndex = currentIndex();
 
   function frame(now: number): void {
-    const t = Math.min(1, (now - startTime) / duration);
-    rotation = startRotation - delta * easeOutQuart(t);
+    const progress = Math.min(1, (now - startTime) / duration);
+    rotation = startRotation - delta * easeOutQuart(progress);
     drawWheel(ctx, images, rotation);
 
-    const idx = currentIndex();
-    if (idx !== lastIdx) {
-      lastIdx = idx;
-      playTick();
-      pointer.classList.remove("tick");
-      void pointer.offsetWidth; // restart animation
-      pointer.classList.add("tick");
+    if (currentIndex() !== lastIndex) {
+      lastIndex = currentIndex();
+      animatePointerTick();
     }
 
-    if (t < 1) {
+    if (progress < 1) {
       requestAnimationFrame(frame);
     } else {
       spinning = false;
@@ -83,8 +80,8 @@ function spin(): void {
   requestAnimationFrame(frame);
 }
 
-function finish(idx: number): void {
-  const item = ITEMS[idx];
+function finish(index: number): void {
+  const item = ITEMS[index];
   hint.textContent = `🎉 ${item.name}!`;
   playWin();
   celebrate();
@@ -98,19 +95,17 @@ function finish(idx: number): void {
   }, 350);
 }
 
+// Sequência de rajadas de confete: centro, cantos e chuviscos por cima
+const CONFETTI_BURSTS: ReadonlyArray<{ delay: number; opts: confetti.Options }> = [
+  { delay: 0, opts: { particleCount: 120, spread: 75, origin: { y: 0.55 } } },
+  { delay: 200, opts: { particleCount: 60, angle: 60, spread: 60, origin: { x: 0, y: 0.7 } } },
+  { delay: 350, opts: { particleCount: 60, angle: 120, spread: 60, origin: { x: 1, y: 0.7 } } },
+  { delay: 600, opts: { particleCount: 90, spread: 100, scalar: 0.8, origin: { y: 0.4 } } },
+];
+
 function celebrate(): void {
-  void confetti({ particleCount: 120, spread: 75, origin: { y: 0.55 } });
-  window.setTimeout(
-    () => void confetti({ particleCount: 60, angle: 60, spread: 60, origin: { x: 0, y: 0.7 } }),
-    200
-  );
-  window.setTimeout(
-    () => void confetti({ particleCount: 60, angle: 120, spread: 60, origin: { x: 1, y: 0.7 } }),
-    350
-  );
-  window.setTimeout(
-    () => void confetti({ particleCount: 90, spread: 100, scalar: 0.8, origin: { y: 0.4 } }),
-    600
+  CONFETTI_BURSTS.forEach(({ delay, opts }) =>
+    window.setTimeout(() => void confetti(opts), delay)
   );
 }
 
