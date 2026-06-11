@@ -48,7 +48,11 @@ python3 -m http.server 8000
 ```
 ├── index.html      # página única
 ├── style.css       # estilos
-├── app.js          # roleta, sorteio, sons e confetes
+├── js/
+│   ├── main.js     # estado, giro, sorteio e ligação com a página
+│   ├── wheel.js    # desenho da roleta no canvas
+│   ├── items.js    # lista de transportes, fatias e cores
+│   └── sounds.js   # tique e som de vitória (Web Audio)
 └── assets/img/     # fotos reais dos transportes
 ```
 
