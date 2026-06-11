@@ -6,18 +6,18 @@ export interface TransportItem {
 }
 
 export const ITEMS: readonly TransportItem[] = [
-  { name: "Caminhão", img: "assets/img/caminhao.jpg" },
-  { name: "Bicicleta", img: "assets/img/bicicleta.jpg" },
-  { name: "Carro particular", img: "assets/img/carro.jpg" },
-  { name: "Canoa", img: "assets/img/canoa.jpg" },
-  { name: "Avião", img: "assets/img/aviao.jpg" },
-  { name: "Voadeira", img: "assets/img/voadeira.jpg" },
-  { name: "Moto", img: "assets/img/moto.jpg" },
-  { name: "Táxi", img: "assets/img/taxi.jpg" },
-  { name: "Lotação", img: "assets/img/lotacao.jpg" },
-  { name: "Uber", img: "assets/img/uber.jpg" },
-  { name: "Ônibus", img: "assets/img/onibus.jpg" },
-  { name: "Bicicleta elétrica", img: "assets/img/bike-eletrica.jpg" },
+  { name: "Caminhão", img: "assets/img/caminhao.webp" },
+  { name: "Bicicleta", img: "assets/img/bicicleta.webp" },
+  { name: "Carro particular", img: "assets/img/carro.webp" },
+  { name: "Canoa", img: "assets/img/canoa.webp" },
+  { name: "Avião", img: "assets/img/aviao.webp" },
+  { name: "Voadeira", img: "assets/img/voadeira.webp" },
+  { name: "Moto", img: "assets/img/moto.webp" },
+  { name: "Táxi", img: "assets/img/taxi.webp" },
+  { name: "Lotação", img: "assets/img/lotacao.webp" },
+  { name: "Uber", img: "assets/img/uber.webp" },
+  { name: "Ônibus", img: "assets/img/onibus.webp" },
+  { name: "Bicicleta elétrica", img: "assets/img/bike-eletrica.webp" },
 ];
 
 export const SLICE: number = (Math.PI * 2) / ITEMS.length;

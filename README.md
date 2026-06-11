@@ -36,8 +36,9 @@ npm run build    # type-check + build de produção em dist/
 
 ## Tecnologias
 
-- **TypeScript** estrito, sem framework — bundle final de ~16KB (6KB gzip)
+- **SolidJS + TypeScript** estrito — reatividade fina sem Virtual DOM, bundle final de ~30KB (12KB gzip)
 - **Vite** para dev server e build
+- Fotos em **WebP** (~46% menores que os JPGs originais)
 - Roleta desenhada em **Canvas 2D**
 - Confetes via [canvas-confetti](https://github.com/catdad/canvas-confetti)
 - Sons de tique e vitória gerados com **Web Audio API** (zero arquivos de áudio)
@@ -46,10 +47,13 @@ npm run build    # type-check + build de produção em dist/
 ## Estrutura
 
 ```
-├── index.html             # página única (entry do Vite)
+├── index.html             # entry do Vite
 ├── src/
-│   ├── main.ts            # estado, giro, sorteio e ligação com a página
+│   ├── main.tsx           # bootstrap do Solid
+│   ├── App.tsx            # UI + estado (signals) + orquestração do giro
 │   ├── wheel.ts           # desenho da roleta no canvas
+│   ├── geometry.ts        # funções puras de ângulo, fatia e easing
+│   ├── random.ts          # sorteios nomeados
 │   ├── items.ts           # lista de transportes, fatias e cores
 │   ├── sounds.ts          # tique e som de vitória (Web Audio)
 │   └── style.css          # estilos

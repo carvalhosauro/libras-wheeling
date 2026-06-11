@@ -10,6 +10,8 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "isolatedModules": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "noEmit": true
