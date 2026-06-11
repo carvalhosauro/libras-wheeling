@@ -17,6 +17,19 @@ const CONFETTI_BURSTS: ReadonlyArray<{ delay: number; opts: confetti.Options }> 
 const celebrate = (): void =>
   CONFETTI_BURSTS.forEach(({ delay, opts }) => window.setTimeout(() => void confetti(opts), delay));
 
+const SPIN = {
+  /** voltas completas, sorteadas neste intervalo */
+  minTurns: 5,
+  maxTurns: 7,
+  /** desvio máximo do centro da fatia, como fração dela (< 0.5 garante a fatia certa) */
+  maxJitter: 0.35,
+  /** duração da animação, sorteada neste intervalo (ms) */
+  minDurationMs: 4200,
+  maxDurationMs: 5000,
+  /** pausa entre a roleta parar e o card de resultado abrir (ms) */
+  resultDelayMs: 350,
+} as const;
+
 export default function App() {
   const [ready, setReady] = createSignal(false);
   const [spinning, setSpinning] = createSignal(false);
@@ -50,11 +63,10 @@ export default function App() {
     setHint("Girando…");
 
     const winner = randomIndex(ITEMS.length);
-    const fullTurns = randomInt(5, 7);
-    // até ±35% da fatia: para fora do centro, mas nunca em cima da linha
-    const jitter = randomBetween(-0.35, 0.35) * SLICE;
+    const fullTurns = randomInt(SPIN.minTurns, SPIN.maxTurns);
+    const jitter = randomBetween(-SPIN.maxJitter, SPIN.maxJitter) * SLICE;
     const delta = spinDelta(rotation, winner, SLICE, fullTurns, jitter);
-    const duration = randomBetween(4200, 5000);
+    const duration = randomBetween(SPIN.minDurationMs, SPIN.maxDurationMs);
 
     const startRotation = rotation;
     const startTime = performance.now();
@@ -87,7 +99,7 @@ export default function App() {
     window.setTimeout(() => {
       setResult(item);
       againBtn?.focus();
-    }, 350);
+    }, SPIN.resultDelayMs);
   }
 
   function closeOverlay(): void {
@@ -131,6 +143,7 @@ export default function App() {
           <div classList={{ "wheel-wrap": true, idle: idle() }}>
             <canvas
               ref={canvas}
+              class="wheel-canvas"
               width="1280"
               height="1280"
               aria-label="Roleta de sorteio"

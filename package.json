@@ -4,7 +4,7 @@
   "description": "**Uma iniciativa para ensinar sinais de Libras (Língua Brasileira de Sinais) de um jeito divertido.**",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview"
@@ -26,7 +26,8 @@
     "@types/canvas-confetti": "^1.9.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.16",
-    "vite-plugin-solid": "^2.11.12"
+    "vite-plugin-solid": "^2.11.12",
+    "vitest": "^4.1.8"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",
